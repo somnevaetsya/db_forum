@@ -11,8 +11,7 @@ RUN apt-get -y update && apt-get install -y tzdata
 ENV TZ=Russia/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENV PGVER 12
-RUN apt-get -y update && apt-get install -y postgresql-$PGVER
+RUN apt-get -y update && apt-get install -y postgresql
 
 USER postgres
 
