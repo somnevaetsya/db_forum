@@ -34,10 +34,10 @@ var (
 	ThreadTreeSince     = "where thread = $1 order by path limit $2;"
 	ThreadTreeSinceDesc = "where thread = $1 order by path desc limit $2;"
 
-	ThreadParentTree          = "(select id from posts where thread = $1 and parent is null and path[1] > (select path[1] from posts where id = $2) order by id limit $3) order by path;"
-	ThreadParentTreeDesc      = "(select id from posts where thread = $1 and parent is null and path[1] < (select path[1] from posts where id = $2) order by id desc limit $3) order by path[1] desc, path asc, id asc;"
-	ThreadParentTreeSince     = "(select id from posts where thread = $1 and parent is null order by id limit $2) order by path;"
-	ThreadParentTreeSinceDesc = "(select id from posts where thread = $1 and parent is null order by id desc limit $2) order by path[1] desc, path asc, id asc;"
+	ThreadParentTree          = "(select id from posts where thread = $1 and parent is null and path[1] > (select path[1] from posts where id = $2) order by path[1] limit $3) order by path;"
+	ThreadParentTreeDesc      = "(select id from posts where thread = $1 and parent is null and path[1] < (select path[1] from posts where id = $2) order by path[1] desc limit $3) order by path[1] desc, path [2:];"
+	ThreadParentTreeSince     = "(select id from posts where thread = $1 and parent is null order by path[1] limit $2) order by path;"
+	ThreadParentTreeSinceDesc = "(select id from posts where thread = $1 and parent is null order by path[1] desc limit $2) order by path[1] desc, path[2:]"
 
 	UserCreate     = "insert into users values ($1, $2, $3, $4);"
 	UserUpdate     = "update users set fullname = $1, about = $2, email = $3 where nickname = $4 returning fullname, about, email;"
