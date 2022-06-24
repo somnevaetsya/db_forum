@@ -184,7 +184,7 @@ CREATE INDEX IF NOT EXISTS thread__forum__hash ON threads using hash (forum);
 create index if not exists threads_forum_created on threads (forum, created); --getthreads
 create index if not exists threads_id ON threads USING hash (id); --getthread
 
---create index if not exists posts_id_thread on posts (thread, id, parent NULLS FIRST);
+create index if not exists posts_id_thread on posts (thread, id);
 create index if not exists posts_id_hash on posts using hash (id);
 create index if not exists posts_threads on posts using hash (thread);
 create index if not exists posts_id_thread_parent_path1 on posts ((path[1]), thread, id, parent NULLS FIRST); --parenttree
