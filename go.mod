@@ -5,6 +5,11 @@ go 1.17
 require github.com/gin-gonic/gin v1.7.7
 
 require (
+	github.com/akavel/rsrc v0.10.2 // indirect
+	github.com/asticode/go-astikit v0.29.1 // indirect
+	github.com/asticode/go-astilectron v0.29.0 // indirect
+	github.com/asticode/go-astilectron-bundler v0.7.12 // indirect
+	github.com/asticode/go-bindata v1.0.0 // indirect
 	github.com/gin-contrib/cors v1.3.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -21,6 +26,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/sam-kamerer/go-plister v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect

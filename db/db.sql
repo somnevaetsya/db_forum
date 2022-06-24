@@ -58,37 +58,26 @@ create unlogged table if not exists user_forum
 );
 
 -- Триггеры и процедуры
-create or replace function create_votes()
+create or replace function create_user()
     returns trigger as
 $$
 begin
-    update threads set votes = votes + new.voice where id = new.thread;
+    insert into user_forum (nickname, forum) values (new.author, new.forum) on conflict do nothing;
     return new;
 end;
 $$ language plpgsql;
 
-create trigger create_votes
+create trigger create_new_thread
     after insert
-    on votes
+    on threads
     for each row
-execute procedure create_votes();
+execute procedure create_user();
 
-
-create or replace function update_votes()
-    returns trigger as
-$$
-begin
-    update threads set votes = votes - old.voice + new.voice where id = new.thread;
-    return NULL;
-end;
-$$ language plpgsql;
-
-create trigger update_votes
-    after update
-    on votes
+create trigger create_new_post
+    after insert
+    ON posts
     for each row
-execute procedure update_votes();
-
+execute procedure create_user();
 
 create or replace function create_post_before()
     returns trigger as
@@ -120,6 +109,36 @@ create trigger create_post_after
     for each row
 execute procedure create_post_after();
 
+create or replace function create_votes()
+    returns trigger as
+$$
+begin
+    update threads set votes = votes + new.voice where id = new.thread;
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger create_votes
+    after insert
+    on votes
+    for each row
+execute procedure create_votes();
+
+
+create or replace function update_votes()
+    returns trigger as
+$$
+begin
+    update threads set votes = votes - old.voice + new.voice where id = new.thread;
+    return NULL;
+end;
+$$ language plpgsql;
+
+create trigger update_votes
+    after update
+    on votes
+    for each row
+execute procedure update_votes();
 
 create or replace function create_thread()
     returns trigger as
@@ -135,28 +154,6 @@ create trigger create_thread
     on threads
     for each row
 execute procedure create_thread();
-
-
-create or replace function create_user()
-    returns trigger as
-$$
-begin
-    insert into user_forum (nickname, forum) values (new.author, new.forum) on conflict do nothing;
-    return new;
-end;
-$$ language plpgsql;
-
-create trigger create_new_thread
-    after insert
-    on threads
-    for each row
-execute procedure create_user();
-
-create trigger create_new_post
-    after insert
-    ON posts
-    for each row
-execute procedure create_user();
 
 CREATE INDEX IF NOT EXISTS users_idx on users (nickname, email) include (about, fullname);
 create index if not exists users_nickname_hash on users using hash (nickname);
