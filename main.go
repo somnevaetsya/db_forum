@@ -11,8 +11,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-func Run() {
-
+func main() {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -20,7 +19,7 @@ func Run() {
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowCredentials = true
 
-	conn, err := pgx.ParseConnectionString(fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "localhost", "somnevaetsya", "password", "forumdb", "5432"))
+	conn, err := pgx.ParseConnectionString(fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "localhost", "forum", "forum", "forum", "5432"))
 	if err != nil {
 		fmt.Println(err)
 	}
