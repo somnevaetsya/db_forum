@@ -30,4 +30,4 @@ COPY --from=build /app/api/ .
 
 EXPOSE 5000
 USER root
-CMD service postgresql start && psql -f ./db/db.sql -d forumdb && ./api
+CMD service postgresql start && psql -h localhost -d forumdb -U somnevaetsya -p 5432 -a -q -f ./db/db.sql && ./api
