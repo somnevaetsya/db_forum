@@ -4,11 +4,9 @@ import (
 	"db_forum/app/models"
 	"db_forum/app/usecases"
 	"db_forum/pkg"
+	"github.com/mailru/easyjson"
 	"net/http"
 	"strconv"
-	"strings"
-
-	"github.com/mailru/easyjson"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,12 +24,8 @@ func (postHandler *PostHandler) GetPost(c *gin.Context) {
 	id, err := strconv.Atoi(rawId)
 
 	related := c.Query("related")
-	var relatedDataArr []string
-	if related != "" {
-		relatedDataArr = strings.Split(related, ",")
-	}
 
-	postFull, err := postHandler.postUsecase.GetPost(int64(id), &relatedDataArr)
+	postFull, err := postHandler.postUsecase.GetPost(int64(id), related)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return

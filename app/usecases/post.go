@@ -4,10 +4,11 @@ import (
 	"db_forum/app/models"
 	"db_forum/app/repositories"
 	"db_forum/pkg"
+	"strings"
 )
 
 type PostUsecase interface {
-	GetPost(id int64, relatedData *[]string) (postFull *models.PostFull, err error)
+	GetPost(id int64, related string) (postFull *models.PostFull, err error)
 	UpdatePost(post *models.Post) (err error)
 }
 
@@ -23,7 +24,7 @@ func MakePostUseCase(forum repositories.ForumRepository, thread repositories.Thr
 	return &PostUsecaseImpl{repoForum: forum, repoThread: thread, repoUser: user, repoPost: post}
 }
 
-func (postUsecase *PostUsecaseImpl) GetPost(id int64, relatedData *[]string) (postFull *models.PostFull, err error) {
+func (postUsecase *PostUsecaseImpl) GetPost(id int64, related string) (postFull *models.PostFull, err error) {
 	postFull = new(models.PostFull)
 	var post *models.Post
 	post, err = postUsecase.repoPost.GetPost(id)
@@ -32,7 +33,12 @@ func (postUsecase *PostUsecaseImpl) GetPost(id int64, relatedData *[]string) (po
 	}
 	postFull.Post = post
 
-	for _, data := range *relatedData {
+	var relatedDataArr []string
+	if related != "" {
+		relatedDataArr = strings.Split(related, ",")
+	}
+
+	for _, data := range relatedDataArr {
 		switch data {
 		case "user":
 			var author *models.User

@@ -180,13 +180,14 @@ create index if not exists forums_slug on forums using hash (slug); --getforum
 
 create index if not exists threads_created on threads using hash (created); --sortthreads
 create index if not exists threads_slug on threads using hash (slug); --getthread
+CREATE INDEX IF NOT EXISTS thread__forum__hash ON threads using hash (forum);
 create index if not exists threads_forum_created on threads (forum, created); --getthreads
 create index if not exists threads_id ON threads USING hash (id); --getthread
 
-create index if not exists posts_id_thread on posts (thread, id, parent NULLS FIRST);
+--create index if not exists posts_id_thread on posts (thread, id, parent NULLS FIRST);
 create index if not exists posts_id_hash on posts using hash (id);
 create index if not exists posts_threads on posts using hash (thread);
-create index if not exists posts_id_path_path1 on posts ((path[1]), path); --parenttree
+create index if not exists posts_id_thread_parent_path1 on posts ((path[1]), thread, id, parent NULLS FIRST); --parenttree
 create index if not exists posts_thread_past on posts (thread, path); --flat,tree
 
 create unique index if not exists votes_nickname on votes (thread, nickname); --vote

@@ -24,15 +24,15 @@ var (
 	ThreadVotes   = "select votes from threads where id = $1;"
 	ThreadUpdate  = "update threads SET title = $1, message = $2 where id = $3;"
 
-	ThreadFlat          = "and id > $2 order by id limit nullif($3, 0);"
-	ThreadFlatDesc      = "and id < $2 order by id desc limit nullif($3, 0);"
-	ThreadFlatSince     = "order by id limit nullif($2, 0);"
-	ThreadFlatSinceDesc = " order by id desc limit nullif($2, 0);"
+	ThreadFlat          = "and id > $2 order by id limit $3;"
+	ThreadFlatDesc      = "and id < $2 order by id desc limit $3;"
+	ThreadFlatSince     = "order by id limit $2;"
+	ThreadFlatSinceDesc = " order by id desc limit $2;"
 
-	ThreadTree          = "where thread = $1 and path > (select path from posts where id = $2) order by path limit nullif($3, 0);"
-	ThreadTreeDesc      = "where thread = $1 and path < (select path from posts where id = $2) order by path desc limit nullif($3, 0);"
-	ThreadTreeSince     = "where thread = $1 order by path limit nullif($2, 0);"
-	ThreadTreeSinceDesc = "where thread = $1 order by path desc limit nullif($2, 0);"
+	ThreadTree          = "where thread = $1 and path > (select path from posts where id = $2) order by path limit $3;"
+	ThreadTreeDesc      = "where thread = $1 and path < (select path from posts where id = $2) order by path desc limit $3;"
+	ThreadTreeSince     = "where thread = $1 order by path limit $2;"
+	ThreadTreeSinceDesc = "where thread = $1 order by path desc limit $2;"
 
 	ThreadParentTree          = "(select id from posts where thread = $1 and parent is null and path[1] > (select path[1] from posts where id = $2) order by id limit $3) order by path;"
 	ThreadParentTreeDesc      = "(select id from posts where thread = $1 and parent is null and path[1] < (select path[1] from posts where id = $2) order by id desc limit $3) order by path[1] desc, path asc, id asc;"
