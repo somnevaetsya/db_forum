@@ -12,7 +12,8 @@ import (
 )
 
 func main() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://127.0.0.1:5000"}
