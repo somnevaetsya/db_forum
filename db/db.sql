@@ -181,6 +181,7 @@ create index if not exists forums_slug on forums using hash (slug); --getforum
 create index if not exists threads_created on threads using hash (created); --sortthreads
 create index if not exists threads_slug on threads using hash (slug); --getthread
 create index if not exists threads_forum_created on threads (forum, created); --getthreads
+create index if not exists threads_id ON threads USING hash (id); --getthread
 
 create index if not exists posts_id_thread on posts (thread, id, parent NULLS FIRST);
 create index if not exists posts_id_hash on posts using hash (id);
