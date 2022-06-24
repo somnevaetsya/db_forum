@@ -37,9 +37,7 @@ func (forumRepository *ForumRepositoryImpl) GetInfoAboutForum(slug string) (foru
 	return forum, err
 }
 
-func (forumRepository *ForumRepositoryImpl) GetForumUsers(slug string, limit int, since string, desc bool) (users *[]models.User, err error) {
-	var bufUser []models.User
-
+func (forumRepository *ForumRepositoryImpl) GetForumUsers(slug string, limit int, since string, desc bool) (*[]models.User, error) {
 	var query string
 
 	var result *pgx.Rows
@@ -53,7 +51,7 @@ func (forumRepository *ForumRepositoryImpl) GetForumUsers(slug string, limit int
 		}
 		result, innerError = forumRepository.db.Query(query, slug, since, limit)
 		if innerError != nil {
-			return
+			return nil, innerError
 		}
 	} else {
 		if desc {
@@ -63,25 +61,11 @@ func (forumRepository *ForumRepositoryImpl) GetForumUsers(slug string, limit int
 		}
 		result, innerError = forumRepository.db.Query(query, slug, limit)
 		if innerError != nil {
-			return
+			return nil, innerError
 		}
 	}
-
 	defer result.Close()
-
-	for result.Next() {
-		user := models.User{}
-		err = result.Scan(
-			&user.Nickname,
-			&user.Fullname,
-			&user.About,
-			&user.Email)
-		if err != nil {
-			return
-		}
-		bufUser = append(bufUser, user)
-	}
-	return &bufUser, nil
+	return handlerows.User(result)
 }
 
 func (forumRepository *ForumRepositoryImpl) GetForumThreads(slug string, limit int, since string, desc bool) (threads *[]models.Thread, err error) {

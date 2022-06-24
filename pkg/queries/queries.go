@@ -24,16 +24,19 @@ var (
 	ThreadVotes   = "select votes from threads where id = $1;"
 	ThreadUpdate  = "update threads SET title = $1, message = $2 where id = $3;"
 
+	ThreadFlatBase      = "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts where thread = $1 "
 	ThreadFlat          = "and id > $2 order by id limit $3;"
 	ThreadFlatDesc      = "and id < $2 order by id desc limit $3;"
 	ThreadFlatSince     = "order by id limit $2;"
 	ThreadFlatSinceDesc = " order by id desc limit $2;"
 
+	ThreadTreeBase      = "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts "
 	ThreadTree          = "where thread = $1 and path > (select path from posts where id = $2) order by path limit $3;"
 	ThreadTreeDesc      = "where thread = $1 and path < (select path from posts where id = $2) order by path desc limit $3;"
 	ThreadTreeSince     = "where thread = $1 order by path limit $2;"
 	ThreadTreeSinceDesc = "where thread = $1 order by path desc limit $2;"
 
+	ThreadParentBase          = "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts where path[1] in "
 	ThreadParentTree          = "(select id from posts where thread = $1 and parent is null and path[1] > (select path[1] from posts where id = $2) order by path[1] limit $3) order by path;"
 	ThreadParentTreeDesc      = "(select id from posts where thread = $1 and parent is null and path[1] < (select path[1] from posts where id = $2) order by path[1] desc limit $3) order by path[1] desc, path [2:];"
 	ThreadParentTreeSince     = "(select id from posts where thread = $1 and parent is null order by path[1] limit $2) order by path;"

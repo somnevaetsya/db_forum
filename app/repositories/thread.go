@@ -14,7 +14,7 @@ import (
 
 type ThreadRepository interface {
 	CreateThread(thread *models.Thread) (err error)
-	//GetThread(slugOrId interface{}) (*models.Thread, error)
+	// GetThreadVotes GetThread(slugOrId interface{}) (*models.Thread, error)
 	GetThreadVotes(id int64) (votesAmount int32, err error)
 	UpdateThread(thread *models.Thread) error
 	CreateThreadPosts(thread *models.Thread, posts *models.Posts) error
@@ -154,19 +154,18 @@ func (threadRepository *ThreadRepositoryImpl) CreateThreadPosts(thread *models.T
 
 func (threadRepository *ThreadRepositoryImpl) GetThreadPostsTree(id int64, limit, since int, desc bool) (*[]models.Post, error) {
 	var rows *pgx.Rows
-	query := "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts "
 	var err error
 	if since == -1 {
 		if desc {
-			rows, err = threadRepository.db.Query(query+queries.ThreadTreeSinceDesc, id, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTreeSinceDesc, id, limit)
 		} else {
-			rows, err = threadRepository.db.Query(query+queries.ThreadTreeSince, id, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTreeSince, id, limit)
 		}
 	} else {
 		if desc {
-			rows, err = threadRepository.db.Query(query+queries.ThreadTreeDesc, id, since, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTreeDesc, id, since, limit)
 		} else {
-			rows, err = threadRepository.db.Query(query+queries.ThreadTree, id, since, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTree, id, since, limit)
 		}
 	}
 
@@ -174,25 +173,23 @@ func (threadRepository *ThreadRepositoryImpl) GetThreadPostsTree(id int64, limit
 		return nil, err
 	}
 	defer rows.Close()
-
 	return handlerows.Post(rows)
 }
 
 func (threadRepository *ThreadRepositoryImpl) GetThreadPostsParentTree(threadID int64, limit, since int, desc bool) (*[]models.Post, error) {
 	var rows *pgx.Rows
 	var err error
-	query := "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts where path[1] IN "
 	if since == -1 {
 		if desc {
-			rows, err = threadRepository.db.Query(query+queries.ThreadParentTreeSinceDesc, threadID, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTreeSinceDesc, threadID, limit)
 		} else {
-			rows, err = threadRepository.db.Query(query+queries.ThreadParentTreeSince, threadID, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTreeSince, threadID, limit)
 		}
 	} else {
 		if desc {
-			rows, err = threadRepository.db.Query(query+queries.ThreadParentTreeDesc, threadID, since, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTreeDesc, threadID, since, limit)
 		} else {
-			rows, err = threadRepository.db.Query(query+queries.ThreadParentTree, threadID, since, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTree, threadID, since, limit)
 		}
 	}
 	if err != nil {
@@ -206,24 +203,22 @@ func (threadRepository *ThreadRepositoryImpl) GetThreadPostsParentTree(threadID 
 func (threadRepository *ThreadRepositoryImpl) GetThreadPostsFlat(id int64, limit, since int, desc bool) (*[]models.Post, error) {
 	var rows *pgx.Rows
 	var err error
-	query := "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts where thread = $1 "
 	if since == -1 {
 		if desc {
-			rows, err = threadRepository.db.Query(query+queries.ThreadFlatSinceDesc, id, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlatSinceDesc, id, limit)
 		} else {
-			rows, err = threadRepository.db.Query(query+queries.ThreadFlatSince, id, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlatSince, id, limit)
 		}
 	} else {
 		if desc {
-			rows, err = threadRepository.db.Query(query+queries.ThreadFlatDesc, id, since, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlatDesc, id, since, limit)
 		} else {
-			rows, err = threadRepository.db.Query(query+queries.ThreadFlat, id, since, limit)
+			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlat, id, since, limit)
 		}
 	}
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 	return handlerows.Post(rows)
 }
