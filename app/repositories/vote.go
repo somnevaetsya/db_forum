@@ -8,7 +8,7 @@ import (
 )
 
 type VoteRepository interface {
-	Vote(id int64, vote *models.Vote) error
+	VoteForThread(id int64, vote *models.Vote) error
 }
 
 type VoteRepositoryImpl struct {
@@ -19,7 +19,7 @@ func MakeVoteRepository(db *pgx.ConnPool) VoteRepository {
 	return &VoteRepositoryImpl{db: db}
 }
 
-func (voteRepository *VoteRepositoryImpl) Vote(id int64, vote *models.Vote) error {
+func (voteRepository *VoteRepositoryImpl) VoteForThread(id int64, vote *models.Vote) error {
 	_, err := voteRepository.db.Exec(queries.Vote, vote.Nickname, id, vote.Voice)
 	return err
 }

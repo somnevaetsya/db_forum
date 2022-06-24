@@ -8,7 +8,7 @@ import (
 )
 
 type PostUsecase interface {
-	GetPost(id int64, related string) (postFull *models.PostFull, err error)
+	GetInfoAboutPost(id int64, related string) (postFull *models.PostFull, err error)
 	UpdatePost(post *models.Post) (err error)
 }
 
@@ -24,7 +24,7 @@ func MakePostUseCase(forum repositories.ForumRepository, thread repositories.Thr
 	return &PostUsecaseImpl{repoForum: forum, repoThread: thread, repoUser: user, repoPost: post}
 }
 
-func (postUsecase *PostUsecaseImpl) GetPost(id int64, related string) (postFull *models.PostFull, err error) {
+func (postUsecase *PostUsecaseImpl) GetInfoAboutPost(id int64, related string) (postFull *models.PostFull, err error) {
 	postFull = new(models.PostFull)
 	var post *models.Post
 	post, err = postUsecase.repoPost.GetPost(id)
@@ -42,14 +42,14 @@ func (postUsecase *PostUsecaseImpl) GetPost(id int64, related string) (postFull 
 		switch data {
 		case "user":
 			var author *models.User
-			author, err = postUsecase.repoUser.GetByNickname(postFull.Post.Author)
+			author, err = postUsecase.repoUser.GetInfoAboutUser(postFull.Post.Author)
 			if err != nil {
 				err = pkg.ErrUserNotFound
 			}
 			postFull.Author = author
 		case "forum":
 			var forum *models.Forum
-			forum, err = postUsecase.repoForum.GetBySlug(postFull.Post.Forum)
+			forum, err = postUsecase.repoForum.GetInfoAboutForum(postFull.Post.Forum)
 			if err != nil {
 				err = pkg.ErrForumNotExist
 			}
@@ -67,7 +67,7 @@ func (postUsecase *PostUsecaseImpl) GetPost(id int64, related string) (postFull 
 }
 
 func (postUsecase *PostUsecaseImpl) UpdatePost(post *models.Post) (err error) {
-	oldPost, err := postUsecase.repoPost.GetPost(post.ID)
+	oldPost, err := postUsecase.repoPost.GetPost(post.Id)
 	if err != nil {
 		err = pkg.ErrThreadNotFound
 		return

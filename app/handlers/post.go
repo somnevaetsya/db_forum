@@ -25,7 +25,7 @@ func (postHandler *PostHandler) GetPost(c *gin.Context) {
 
 	related := c.Query("related")
 
-	postFull, err := postHandler.postUsecase.GetPost(int64(id), related)
+	postFull, err := postHandler.postUsecase.GetInfoAboutPost(int64(id), related)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return

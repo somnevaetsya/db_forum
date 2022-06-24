@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonE3ecfa40DecodeTechnoparkDBProjectAppModels(in *jlexer.Lexer, out *Vote) {
+func easyjsonE3ecfa40DecodeDbForumAppModels(in *jlexer.Lexer, out *Vote) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -50,7 +50,7 @@ func easyjsonE3ecfa40DecodeTechnoparkDBProjectAppModels(in *jlexer.Lexer, out *V
 		in.Consumed()
 	}
 }
-func easyjsonE3ecfa40EncodeTechnoparkDBProjectAppModels(out *jwriter.Writer, in Vote) {
+func easyjsonE3ecfa40EncodeDbForumAppModels(out *jwriter.Writer, in Vote) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -70,23 +70,23 @@ func easyjsonE3ecfa40EncodeTechnoparkDBProjectAppModels(out *jwriter.Writer, in 
 // MarshalJSON supports json.Marshaler interface
 func (v Vote) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonE3ecfa40EncodeTechnoparkDBProjectAppModels(&w, v)
+	easyjsonE3ecfa40EncodeDbForumAppModels(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Vote) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonE3ecfa40EncodeTechnoparkDBProjectAppModels(w, v)
+	easyjsonE3ecfa40EncodeDbForumAppModels(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Vote) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonE3ecfa40DecodeTechnoparkDBProjectAppModels(&r, v)
+	easyjsonE3ecfa40DecodeDbForumAppModels(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Vote) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonE3ecfa40DecodeTechnoparkDBProjectAppModels(l, v)
+	easyjsonE3ecfa40DecodeDbForumAppModels(l, v)
 }

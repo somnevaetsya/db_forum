@@ -3,6 +3,7 @@ package repositories
 import (
 	"db_forum/app/models"
 	"db_forum/pkg"
+	"db_forum/pkg/handlerows"
 	"db_forum/pkg/queries"
 	"fmt"
 	"time"
@@ -12,14 +13,14 @@ import (
 )
 
 type ThreadRepository interface {
-	Create(thread *models.Thread) (err error)
+	CreateThread(thread *models.Thread) (err error)
 	//GetThread(slugOrId interface{}) (*models.Thread, error)
-	GetVotes(id int64) (votesAmount int32, err error)
-	Update(thread *models.Thread) error
-	CreatePosts(thread *models.Thread, posts *models.Posts) error
-	GetPostsTree(id int64, limit, since int, desc bool) (posts *[]models.Post, err error)
-	GetPostsParentTree(id int64, limit, since int, desc bool) (posts *[]models.Post, err error)
-	GetPostsFlat(id int64, limit, since int, desc bool) (posts *[]models.Post, err error)
+	GetThreadVotes(id int64) (votesAmount int32, err error)
+	UpdateThread(thread *models.Thread) error
+	CreateThreadPosts(thread *models.Thread, posts *models.Posts) error
+	GetThreadPostsTree(id int64, limit, since int, desc bool) (*[]models.Post, error)
+	GetThreadPostsParentTree(id int64, limit, since int, desc bool) (posts *[]models.Post, err error)
+	GetThreadPostsFlat(id int64, limit, since int, desc bool) (posts *[]models.Post, err error)
 	GetBySlug(slug string) (thread *models.Thread, err error)
 	GetById(id int64) (thread *models.Thread, err error)
 }
@@ -35,21 +36,21 @@ func MakeThreadRepository(db *pgx.ConnPool) ThreadRepository {
 func (threadRepository *ThreadRepositoryImpl) GetBySlug(slug string) (thread *models.Thread, err error) {
 	thread = &models.Thread{}
 	err = threadRepository.db.QueryRow(queries.ThreadGetSlug, slug).
-		Scan(&thread.ID, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
+		Scan(&thread.Id, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
 	return
 }
 
 func (threadRepository *ThreadRepositoryImpl) GetById(id int64) (thread *models.Thread, err error) {
 	thread = &models.Thread{}
 	err = threadRepository.db.QueryRow(queries.ThreadGetId, id).
-		Scan(&thread.ID, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
+		Scan(&thread.Id, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
 	return
 }
 
-func (threadRepository *ThreadRepositoryImpl) Create(thread *models.Thread) (err error) {
+func (threadRepository *ThreadRepositoryImpl) CreateThread(thread *models.Thread) (err error) {
 	err = threadRepository.db.QueryRow(queries.ThreadCreate, thread.Title, thread.Author, thread.Forum, thread.Message, thread.Slug, thread.Created).
 		Scan(
-			&thread.ID,
+			&thread.Id,
 			&thread.Created)
 	return
 }
@@ -69,14 +70,14 @@ func (threadRepository *ThreadRepositoryImpl) Create(thread *models.Thread) (err
 //	return thread, err
 //}
 
-func (threadRepository *ThreadRepositoryImpl) GetVotes(id int64) (int32, error) {
+func (threadRepository *ThreadRepositoryImpl) GetThreadVotes(id int64) (int32, error) {
 	var votes int32
 	err := threadRepository.db.QueryRow(queries.ThreadVotes, id).Scan(&votes)
 	return votes, err
 }
 
-func (threadRepository *ThreadRepositoryImpl) Update(thread *models.Thread) error {
-	_, err := threadRepository.db.Exec(queries.ThreadUpdate, thread.Title, thread.Message, thread.ID)
+func (threadRepository *ThreadRepositoryImpl) UpdateThread(thread *models.Thread) error {
+	_, err := threadRepository.db.Exec(queries.ThreadUpdate, thread.Title, thread.Message, thread.Id)
 	return err
 }
 
@@ -87,13 +88,13 @@ func (threadRepository *ThreadRepositoryImpl) createPartPosts(thread *models.Thr
 	j := 0
 	for i := from; i < to; i++ {
 		(*posts)[i].Forum = thread.Forum
-		(*posts)[i].Thread = thread.ID
+		(*posts)[i].Thread = thread.Id
 		(*posts)[i].Created = createdFormatted
 		query += fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d),", j*6+1, j*6+2, j*6+3, j*6+4, j*6+5, j*6+6)
 		if (*posts)[i].Parent != 0 {
-			args = append(args, (*posts)[i].Parent, (*posts)[i].Author, (*posts)[i].Message, thread.Forum, thread.ID, created)
+			args = append(args, (*posts)[i].Parent, (*posts)[i].Author, (*posts)[i].Message, thread.Forum, thread.Id, created)
 		} else {
-			args = append(args, nil, (*posts)[i].Author, (*posts)[i].Message, thread.Forum, thread.ID, created)
+			args = append(args, nil, (*posts)[i].Author, (*posts)[i].Message, thread.Forum, thread.Id, created)
 		}
 		j++
 	}
@@ -118,7 +119,7 @@ func (threadRepository *ThreadRepositoryImpl) createPartPosts(thread *models.Thr
 			if err = resultRows.Scan(&id); err != nil {
 				return err
 			}
-			(*posts)[i].ID = id
+			(*posts)[i].Id = id
 		}
 		k++
 		if k >= 3 {
@@ -128,7 +129,7 @@ func (threadRepository *ThreadRepositoryImpl) createPartPosts(thread *models.Thr
 	return
 }
 
-func (threadRepository *ThreadRepositoryImpl) CreatePosts(thread *models.Thread, posts *models.Posts) (err error) {
+func (threadRepository *ThreadRepositoryImpl) CreateThreadPosts(thread *models.Thread, posts *models.Posts) (err error) {
 	created := time.Now()
 	createdFormatted := created.Format(time.RFC3339)
 
@@ -151,9 +152,10 @@ func (threadRepository *ThreadRepositoryImpl) CreatePosts(thread *models.Thread,
 	return
 }
 
-func (threadRepository *ThreadRepositoryImpl) GetPostsTree(id int64, limit, since int, desc bool) (posts *[]models.Post, err error) {
+func (threadRepository *ThreadRepositoryImpl) GetThreadPostsTree(id int64, limit, since int, desc bool) (*[]models.Post, error) {
 	var rows *pgx.Rows
 	query := "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts "
+	var err error
 	if since == -1 {
 		if desc {
 			rows, err = threadRepository.db.Query(query+queries.ThreadTreeSinceDesc, id, limit)
@@ -169,29 +171,16 @@ func (threadRepository *ThreadRepositoryImpl) GetPostsTree(id int64, limit, sinc
 	}
 
 	if err != nil {
-		return
+		return nil, err
 	}
 	defer rows.Close()
 
-	posts = new([]models.Post)
-	for rows.Next() {
-		post := models.Post{}
-		postTime := time.Time{}
-
-		err = rows.Scan(&post.ID, &post.Parent, &post.Author, &post.Message, &post.IsEdited, &post.Forum, &post.Thread, &postTime)
-		if err != nil {
-			return
-		}
-
-		post.Created = postTime.Format(time.RFC3339)
-		*posts = append(*posts, post)
-	}
-
-	return
+	return handlerows.Post(rows)
 }
 
-func (threadRepository *ThreadRepositoryImpl) GetPostsParentTree(threadID int64, limit, since int, desc bool) (posts *[]models.Post, err error) {
+func (threadRepository *ThreadRepositoryImpl) GetThreadPostsParentTree(threadID int64, limit, since int, desc bool) (*[]models.Post, error) {
 	var rows *pgx.Rows
+	var err error
 	query := "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts where path[1] IN "
 	if since == -1 {
 		if desc {
@@ -211,25 +200,12 @@ func (threadRepository *ThreadRepositoryImpl) GetPostsParentTree(threadID int64,
 	}
 	defer rows.Close()
 
-	posts = new([]models.Post)
-	for rows.Next() {
-		post := models.Post{}
-		postTime := time.Time{}
-
-		err = rows.Scan(&post.ID, &post.Parent, &post.Author, &post.Message, &post.IsEdited, &post.Forum, &post.Thread, &postTime)
-		if err != nil {
-			return
-		}
-
-		post.Created = postTime.Format(time.RFC3339)
-		*posts = append(*posts, post)
-	}
-
-	return
+	return handlerows.Post(rows)
 }
 
-func (threadRepository *ThreadRepositoryImpl) GetPostsFlat(id int64, limit, since int, desc bool) (posts *[]models.Post, err error) {
+func (threadRepository *ThreadRepositoryImpl) GetThreadPostsFlat(id int64, limit, since int, desc bool) (*[]models.Post, error) {
 	var rows *pgx.Rows
+	var err error
 	query := "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts where thread = $1 "
 	if since == -1 {
 		if desc {
@@ -245,23 +221,9 @@ func (threadRepository *ThreadRepositoryImpl) GetPostsFlat(id int64, limit, sinc
 		}
 	}
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	defer rows.Close()
-	posts = new([]models.Post)
-	for rows.Next() {
-		post := models.Post{}
-		postTime := time.Time{}
-
-		err = rows.Scan(&post.ID, &post.Parent, &post.Author, &post.Message, &post.IsEdited, &post.Forum, &post.Thread, &postTime)
-		if err != nil {
-			return
-		}
-
-		post.Created = postTime.Format(time.RFC3339)
-		*posts = append(*posts, post)
-	}
-
-	return
+	return handlerows.Post(rows)
 }

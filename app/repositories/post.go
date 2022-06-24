@@ -27,7 +27,7 @@ func (postStore *PostRepositoryImpl) GetPost(id int64) (post *models.Post, err e
 	timeScan := time.Time{}
 	err = postStore.db.QueryRow(queries.PostGet, id).
 		Scan(
-			&post.ID,
+			&post.Id,
 			&post.Parent,
 			&post.Author,
 			&post.Message,
@@ -40,6 +40,6 @@ func (postStore *PostRepositoryImpl) GetPost(id int64) (post *models.Post, err e
 }
 
 func (postStore *PostRepositoryImpl) UpdatePost(post *models.Post) (err error) {
-	_, err = postStore.db.Exec(queries.PostUpdate, post.Message, post.IsEdited, post.ID)
+	_, err = postStore.db.Exec(queries.PostUpdate, post.Message, post.IsEdited, post.Id)
 	return
 }

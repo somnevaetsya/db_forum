@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"db_forum/app/models"
+	"db_forum/pkg/handlerows"
 	"db_forum/pkg/queries"
 	"fmt"
 
@@ -10,10 +11,10 @@ import (
 )
 
 type ForumRepository interface {
-	Create(forum *models.Forum) (err error)
-	GetBySlug(slug string) (forum *models.Forum, err error)
-	GetUsers(slug string, limit int, since string, desc bool) (*[]models.User, error)
-	GetThreads(slug string, limit int, since string, desc bool) (threads *[]models.Thread, err error)
+	CreateForum(forum *models.Forum) (err error)
+	GetInfoAboutForum(slug string) (forum *models.Forum, err error)
+	GetForumUsers(slug string, limit int, since string, desc bool) (*[]models.User, error)
+	GetForumThreads(slug string, limit int, since string, desc bool) (threads *[]models.Thread, err error)
 }
 
 type ForumRepositoryImpl struct {
@@ -24,19 +25,19 @@ func MakeForumRepository(db *pgx.ConnPool) ForumRepository {
 	return &ForumRepositoryImpl{db: db}
 }
 
-func (forumRepository *ForumRepositoryImpl) Create(forum *models.Forum) (err error) {
+func (forumRepository *ForumRepositoryImpl) CreateForum(forum *models.Forum) (err error) {
 	_, err = forumRepository.db.Exec(queries.ForumCreate, forum.Title, forum.User, forum.Slug)
 	return err
 }
 
-func (forumRepository *ForumRepositoryImpl) GetBySlug(slug string) (forum *models.Forum, err error) {
+func (forumRepository *ForumRepositoryImpl) GetInfoAboutForum(slug string) (forum *models.Forum, err error) {
 	forum = new(models.Forum)
 	err = forumRepository.db.QueryRow(queries.ForumGetBySlug, slug).Scan(&forum.Title, &forum.User, &forum.Slug, &forum.Posts, &forum.Threads)
 	fmt.Println("GET FORUM", forum, err)
 	return forum, err
 }
 
-func (forumRepository *ForumRepositoryImpl) GetUsers(slug string, limit int, since string, desc bool) (users *[]models.User, err error) {
+func (forumRepository *ForumRepositoryImpl) GetForumUsers(slug string, limit int, since string, desc bool) (users *[]models.User, err error) {
 	var bufUser []models.User
 
 	var query string
@@ -83,9 +84,7 @@ func (forumRepository *ForumRepositoryImpl) GetUsers(slug string, limit int, sin
 	return &bufUser, nil
 }
 
-func (forumRepository *ForumRepositoryImpl) GetThreads(slug string, limit int, since string, desc bool) (threads *[]models.Thread, err error) {
-	var bufThreads []models.Thread
-
+func (forumRepository *ForumRepositoryImpl) GetForumThreads(slug string, limit int, since string, desc bool) (threads *[]models.Thread, err error) {
 	var query string
 
 	var result *pgx.Rows
@@ -113,26 +112,6 @@ func (forumRepository *ForumRepositoryImpl) GetThreads(slug string, limit int, s
 		}
 	}
 
-	if err != nil {
-		return
-	}
 	defer result.Close()
-
-	for result.Next() {
-		thread := models.Thread{}
-		err = result.Scan(
-			&thread.ID,
-			&thread.Title,
-			&thread.Author,
-			&thread.Forum,
-			&thread.Message,
-			&thread.Votes,
-			&thread.Slug,
-			&thread.Created)
-		if err != nil {
-			return
-		}
-		bufThreads = append(bufThreads, thread)
-	}
-	return &bufThreads, nil
+	return handlerows.Thread(result)
 }

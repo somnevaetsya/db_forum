@@ -5,7 +5,7 @@ type Posts []Post
 
 //easyjson:json
 type Post struct {
-	ID       int64  `json:"id"`
+	Id       int64  `json:"id"`
 	Parent   int64  `json:"parent"`
 	Author   string `json:"author"`
 	Message  string `json:"message"`

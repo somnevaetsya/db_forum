@@ -31,7 +31,7 @@ func (userHandler *UserHandler) CreateUser(c *gin.Context) {
 
 	user.Nickname = nickname
 
-	users, err := userHandler.userUsecase.Create(&user)
+	users, err := userHandler.userUsecase.CreateNewUser(&user)
 	if err != nil && pkg.ConvertErrorToCode(err) != http.StatusConflict {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -59,7 +59,7 @@ func (userHandler *UserHandler) CreateUser(c *gin.Context) {
 func (userHandler *UserHandler) GetUser(c *gin.Context) {
 	nickname := c.Param("nickname")
 
-	user, err := userHandler.userUsecase.Get(nickname)
+	user, err := userHandler.userUsecase.GetInfoAboutUser(nickname)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -80,7 +80,7 @@ func (userHandler *UserHandler) UpdateUser(c *gin.Context) {
 	userUpdate := new(models.UserUpdate)
 	err := easyjson.UnmarshalFromReader(c.Request.Body, userUpdate)
 	if err != nil {
-		user, err := userHandler.userUsecase.Get(nickname)
+		user, err := userHandler.userUsecase.GetInfoAboutUser(nickname)
 		if err != nil {
 			c.Data(pkg.CreateErrorResponse(err))
 			return
@@ -98,7 +98,7 @@ func (userHandler *UserHandler) UpdateUser(c *gin.Context) {
 
 	user := &models.User{Nickname: nickname, Fullname: userUpdate.Fullname, About: userUpdate.About, Email: userUpdate.Email}
 
-	err = userHandler.userUsecase.Update(user)
+	err = userHandler.userUsecase.UpdateUser(user)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return

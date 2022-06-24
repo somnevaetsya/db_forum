@@ -29,7 +29,7 @@ func (threadHandler *ThreadHandler) CreatePosts(c *gin.Context) {
 		return
 	}
 
-	err = threadHandler.threadUsecase.CreatePosts(rawId, &posts)
+	err = threadHandler.threadUsecase.CreateNewPosts(rawId, &posts)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -47,7 +47,7 @@ func (threadHandler *ThreadHandler) CreatePosts(c *gin.Context) {
 func (threadHandler *ThreadHandler) GetThread(c *gin.Context) {
 	rawId := c.Param("slug_or_id")
 
-	thread, err := threadHandler.threadUsecase.Get(rawId)
+	thread, err := threadHandler.threadUsecase.GetInfoAboutThread(rawId)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -73,7 +73,7 @@ func (threadHandler *ThreadHandler) UpdateThread(c *gin.Context) {
 	}
 
 	thread := &models.Thread{Title: threadUpdate.Title, Message: threadUpdate.Message}
-	err = threadHandler.threadUsecase.Update(rawId, thread)
+	err = threadHandler.threadUsecase.UpdateThread(rawId, thread)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -131,7 +131,7 @@ func (threadHandler *ThreadHandler) GetThreadPosts(c *gin.Context) {
 		sort = "flat"
 	}
 
-	posts, err := threadHandler.threadUsecase.GetPosts(rawId, defaultLimit, since, sort, defaultDesc)
+	posts, err := threadHandler.threadUsecase.GetThreadPosts(rawId, defaultLimit, since, sort, defaultDesc)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -156,7 +156,7 @@ func (threadHandler *ThreadHandler) Vote(c *gin.Context) {
 		return
 	}
 
-	thread, err := threadHandler.threadUsecase.Vote(rawId, &vote)
+	thread, err := threadHandler.threadUsecase.VoteForThread(rawId, &vote)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return

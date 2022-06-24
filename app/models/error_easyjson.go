@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonE34310f8DecodeTechnoparkDBProjectAppModels(in *jlexer.Lexer, out *Error) {
+func easyjsonE34310f8DecodeDbForumAppModels(in *jlexer.Lexer, out *Error) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -48,7 +48,7 @@ func easyjsonE34310f8DecodeTechnoparkDBProjectAppModels(in *jlexer.Lexer, out *E
 		in.Consumed()
 	}
 }
-func easyjsonE34310f8EncodeTechnoparkDBProjectAppModels(out *jwriter.Writer, in Error) {
+func easyjsonE34310f8EncodeDbForumAppModels(out *jwriter.Writer, in Error) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -63,23 +63,23 @@ func easyjsonE34310f8EncodeTechnoparkDBProjectAppModels(out *jwriter.Writer, in 
 // MarshalJSON supports json.Marshaler interface
 func (v Error) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonE34310f8EncodeTechnoparkDBProjectAppModels(&w, v)
+	easyjsonE34310f8EncodeDbForumAppModels(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Error) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonE34310f8EncodeTechnoparkDBProjectAppModels(w, v)
+	easyjsonE34310f8EncodeDbForumAppModels(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Error) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonE34310f8DecodeTechnoparkDBProjectAppModels(&r, v)
+	easyjsonE34310f8DecodeDbForumAppModels(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Error) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonE34310f8DecodeTechnoparkDBProjectAppModels(l, v)
+	easyjsonE34310f8DecodeDbForumAppModels(l, v)
 }

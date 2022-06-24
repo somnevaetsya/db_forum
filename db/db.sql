@@ -187,7 +187,7 @@ create index if not exists threads_id ON threads USING hash (id); --getthread
 create index if not exists posts_id_thread on posts (thread, id);
 create index if not exists posts_id_hash on posts using hash (id);
 create index if not exists posts_threads on posts using hash (thread);
-create index if not exists posts_id_thread_parent_path1 on posts ((path[1]), thread, id, parent NULLS FIRST); --parenttree
+create index if not exists posts_id_thread_parent_path1 on posts ((path[1]), path); --parenttree
 create index if not exists posts_thread_past on posts (thread, path); --flat,tree
 
 create unique index if not exists votes_nickname on votes (thread, nickname); --vote

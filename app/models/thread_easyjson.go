@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson2d00218DecodeTechnoparkDBProjectAppModels(in *jlexer.Lexer, out *Threads) {
+func easyjson2d00218DecodeDbForumAppModels(in *jlexer.Lexer, out *Threads) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		in.Skip()
@@ -45,7 +45,7 @@ func easyjson2d00218DecodeTechnoparkDBProjectAppModels(in *jlexer.Lexer, out *Th
 		in.Consumed()
 	}
 }
-func easyjson2d00218EncodeTechnoparkDBProjectAppModels(out *jwriter.Writer, in Threads) {
+func easyjson2d00218EncodeDbForumAppModels(out *jwriter.Writer, in Threads) {
 	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 		out.RawString("null")
 	} else {
@@ -63,27 +63,27 @@ func easyjson2d00218EncodeTechnoparkDBProjectAppModels(out *jwriter.Writer, in T
 // MarshalJSON supports json.Marshaler interface
 func (v Threads) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson2d00218EncodeTechnoparkDBProjectAppModels(&w, v)
+	easyjson2d00218EncodeDbForumAppModels(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Threads) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson2d00218EncodeTechnoparkDBProjectAppModels(w, v)
+	easyjson2d00218EncodeDbForumAppModels(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Threads) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson2d00218DecodeTechnoparkDBProjectAppModels(&r, v)
+	easyjson2d00218DecodeDbForumAppModels(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Threads) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson2d00218DecodeTechnoparkDBProjectAppModels(l, v)
+	easyjson2d00218DecodeDbForumAppModels(l, v)
 }
-func easyjson2d00218DecodeTechnoparkDBProjectAppModels1(in *jlexer.Lexer, out *ThreadUpdate) {
+func easyjson2d00218DecodeDbForumAppModels1(in *jlexer.Lexer, out *ThreadUpdate) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -116,7 +116,7 @@ func easyjson2d00218DecodeTechnoparkDBProjectAppModels1(in *jlexer.Lexer, out *T
 		in.Consumed()
 	}
 }
-func easyjson2d00218EncodeTechnoparkDBProjectAppModels1(out *jwriter.Writer, in ThreadUpdate) {
+func easyjson2d00218EncodeDbForumAppModels1(out *jwriter.Writer, in ThreadUpdate) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -136,27 +136,27 @@ func easyjson2d00218EncodeTechnoparkDBProjectAppModels1(out *jwriter.Writer, in 
 // MarshalJSON supports json.Marshaler interface
 func (v ThreadUpdate) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson2d00218EncodeTechnoparkDBProjectAppModels1(&w, v)
+	easyjson2d00218EncodeDbForumAppModels1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ThreadUpdate) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson2d00218EncodeTechnoparkDBProjectAppModels1(w, v)
+	easyjson2d00218EncodeDbForumAppModels1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ThreadUpdate) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson2d00218DecodeTechnoparkDBProjectAppModels1(&r, v)
+	easyjson2d00218DecodeDbForumAppModels1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ThreadUpdate) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson2d00218DecodeTechnoparkDBProjectAppModels1(l, v)
+	easyjson2d00218DecodeDbForumAppModels1(l, v)
 }
-func easyjson2d00218DecodeTechnoparkDBProjectAppModels2(in *jlexer.Lexer, out *Thread) {
+func easyjson2d00218DecodeDbForumAppModels2(in *jlexer.Lexer, out *Thread) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -176,7 +176,7 @@ func easyjson2d00218DecodeTechnoparkDBProjectAppModels2(in *jlexer.Lexer, out *T
 		}
 		switch key {
 		case "id":
-			out.ID = int64(in.Int64())
+			out.Id = int64(in.Int64())
 		case "title":
 			out.Title = string(in.String())
 		case "author":
@@ -203,14 +203,14 @@ func easyjson2d00218DecodeTechnoparkDBProjectAppModels2(in *jlexer.Lexer, out *T
 		in.Consumed()
 	}
 }
-func easyjson2d00218EncodeTechnoparkDBProjectAppModels2(out *jwriter.Writer, in Thread) {
+func easyjson2d00218EncodeDbForumAppModels2(out *jwriter.Writer, in Thread) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
-		out.Int64(int64(in.ID))
+		out.Int64(int64(in.Id))
 	}
 	{
 		const prefix string = ",\"title\":"
@@ -253,23 +253,23 @@ func easyjson2d00218EncodeTechnoparkDBProjectAppModels2(out *jwriter.Writer, in 
 // MarshalJSON supports json.Marshaler interface
 func (v Thread) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson2d00218EncodeTechnoparkDBProjectAppModels2(&w, v)
+	easyjson2d00218EncodeDbForumAppModels2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Thread) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson2d00218EncodeTechnoparkDBProjectAppModels2(w, v)
+	easyjson2d00218EncodeDbForumAppModels2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Thread) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson2d00218DecodeTechnoparkDBProjectAppModels2(&r, v)
+	easyjson2d00218DecodeDbForumAppModels2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Thread) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson2d00218DecodeTechnoparkDBProjectAppModels2(l, v)
+	easyjson2d00218DecodeDbForumAppModels2(l, v)
 }

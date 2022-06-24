@@ -56,7 +56,7 @@ func (forumHandler *ForumHandler) CreateForum(c *gin.Context) {
 func (forumHandler *ForumHandler) GetForum(c *gin.Context) {
 	slug := c.Param("slug")
 
-	forum, err := forumHandler.forumUsecase.Get(slug)
+	forum, err := forumHandler.forumUsecase.GetInfoAboutForum(slug)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -81,7 +81,7 @@ func (forumHandler *ForumHandler) CreateThread(c *gin.Context) {
 	}
 	thread.Forum = slug
 
-	err := forumHandler.forumUsecase.CreateThread(&thread)
+	err := forumHandler.forumUsecase.CreateForumsThread(&thread)
 	if err != nil && pkg.ConvertErrorToCode(err) != http.StatusConflict {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -134,7 +134,7 @@ func (forumHandler *ForumHandler) GetForumUsers(c *gin.Context) {
 		}
 	}
 
-	users, err := forumHandler.forumUsecase.GetUsers(slug, defaultLimit, since, defaultDesc)
+	users, err := forumHandler.forumUsecase.GetForumUsers(slug, defaultLimit, since, defaultDesc)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -174,7 +174,7 @@ func (forumHandler *ForumHandler) GetForumThreads(c *gin.Context) {
 		}
 	}
 
-	threads, err := forumHandler.forumUsecase.GetThreads(slug, limit, since, desc)
+	threads, err := forumHandler.forumUsecase.GetForumThreads(slug, limit, since, desc)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
