@@ -1,6 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS citext;
 
--- TABLES
 CREATE UNLOGGED TABLE IF NOT EXISTS users
 (
     nickname citext COLLATE "ucs_basic" NOT NULL UNIQUE PRIMARY KEY,
@@ -172,23 +171,21 @@ CREATE TRIGGER insert_new_post
     FOR EACH ROW
 EXECUTE PROCEDURE add_user();
 
--- INDEXES
-create index if not exists users_nickname_nickname_email on users (nickname, email);
 
---create index if not exists user_forum_forum on user_forum (forum);
-create index if not exists user_forum_nickname on user_forum (nickname);
+create index if not exists users_nickname_email on users (nickname, email);
+create index if not exists users_nickname_hash on users using hash (nickname);
 create index if not exists user_forum_all on user_forum (forum, nickname);
 
---create index if not exists threads_slug on threads (forum);
-create index if not exists threads_created on threads (created);
-create index if not exists threads_forum_created on threads (forum, created);
+create index if not exists forums_slug on forums using hash (slug); --getforum
 
---create index if not exists posts_id_thread on posts (thread, id);
+create index if not exists threads_created on threads using hash (created); --sortthreads
+create index if not exists threads_slug on threads using hash (slug); --getthread
+create index if not exists threads_forum_created on threads (forum, created); --getthreads
+
 create index if not exists posts_id_thread on posts (thread, id, parent NULLS FIRST);
-create index if not exists posts_id_path_path1 on posts (path, (path[1]), id);
---create index if not exists posts_path_path1 on posts (path, (path[1]));
-create index if not exists posts_id_thread_parent_path1 on posts ((path[1]), thread, id, parent NULLS FIRST);
---create index if not exists posts_thread on posts (thread);
-create index if not exists posts_thread_past on posts (thread, path);
+create index if not exists posts_id_hash on posts using hash (id);
+create index if not exists posts_threads on posts using hash (thread);
+create index if not exists posts_id_path_path1 on posts ((path[1]), path); --parenttree
+create index if not exists posts_thread_past on posts (thread, path); --flat,tree
 
-create unique index if not exists votes_key on votes (thread, nickname);
+create unique index if not exists votes_nickname on votes (thread, nickname); --vote
