@@ -13,7 +13,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS forums
     title   text   NOT NULL,
     user_   citext NOT NULL REFERENCES users (nickname),
     slug    citext NOT NULL PRIMARY KEY,
-    posts   bigint DEFAULT 0,
+    posts   int DEFAULT 0,
     threads int    DEFAULT 0
 );
 

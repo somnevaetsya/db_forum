@@ -55,7 +55,7 @@ func (postHandler *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	post := &models.Post{ID: int64(id), Message: postUpdate.Message}
+	post := &models.Post{Id: int64(id), Message: postUpdate.Message}
 	err = postHandler.postUsecase.UpdatePost(post)
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
