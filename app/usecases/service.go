@@ -6,8 +6,8 @@ import (
 )
 
 type ServiceUsecase interface {
-	ClearService() (err error)
-	GetService() (status *models.Status, err error)
+	ClearService() error
+	GetService() (*models.Status, error)
 }
 
 type ServiceUsecaseImpl struct {
@@ -18,10 +18,10 @@ func MakeServiceUseCase(service repositories.ServiceRepository) ServiceUsecase {
 	return &ServiceUsecaseImpl{repoService: service}
 }
 
-func (serviceUsecase *ServiceUsecaseImpl) ClearService() (err error) {
+func (serviceUsecase *ServiceUsecaseImpl) ClearService() error {
 	return serviceUsecase.repoService.ClearService()
 }
 
-func (serviceUsecase *ServiceUsecaseImpl) GetService() (status *models.Status, err error) {
+func (serviceUsecase *ServiceUsecaseImpl) GetService() (*models.Status, error) {
 	return serviceUsecase.repoService.GetService()
 }

@@ -24,96 +24,87 @@ func MakeForumUseCase(forum repositories.ForumRepository, thread repositories.Th
 	return &ForumUseCaseImpl{repoForum: forum, repoThread: thread, repoUser: user}
 }
 
-func (forumUsecase *ForumUseCaseImpl) CreateForum(forum *models.Forum) (err error) {
+func (forumUsecase *ForumUseCaseImpl) CreateForum(forum *models.Forum) error {
 	user, err := forumUsecase.repoUser.GetInfoAboutUser(forum.User)
 	if err != nil {
-		err = pkg.ErrUserNotFound
-		return
+		return pkg.ErrUserNotFound
 	}
 
 	oldForum, err := forumUsecase.repoForum.GetInfoAboutForum(forum.Slug)
 	if oldForum.Slug != "" {
 		*forum = *oldForum
-		err = pkg.ErrForumAlreadyExists
-		return
+		return pkg.ErrForumAlreadyExists
 	}
 
 	forum.User = user.Nickname
 	err = forumUsecase.repoForum.CreateForum(forum)
-	return
+	return err
 }
 
-func (forumUsecase *ForumUseCaseImpl) GetInfoAboutForum(slug string) (forum *models.Forum, err error) {
-	forum, err = forumUsecase.repoForum.GetInfoAboutForum(slug)
+func (forumUsecase *ForumUseCaseImpl) GetInfoAboutForum(slug string) (*models.Forum, error) {
+	forum, err := forumUsecase.repoForum.GetInfoAboutForum(slug)
 	if err != nil {
-		err = pkg.ErrForumNotExist
+		return nil, pkg.ErrForumNotExist
 	}
-	return
+	return forum, nil
 }
 
-func (forumUsecase *ForumUseCaseImpl) CreateForumsThread(thread *models.Thread) (err error) {
+func (forumUsecase *ForumUseCaseImpl) CreateForumsThread(thread *models.Thread) error {
 	forum, err := forumUsecase.repoForum.GetInfoAboutForum(thread.Forum)
 	if err != nil {
-		err = pkg.ErrForumOrTheadNotFound
-		return
+		return pkg.ErrForumOrTheadNotFound
 	}
 
 	_, err = forumUsecase.repoUser.GetInfoAboutUser(thread.Author)
 	if err != nil {
-		err = pkg.ErrForumOrTheadNotFound
-		return
+		return pkg.ErrForumOrTheadNotFound
 	}
 
-	oldThread, err := forumUsecase.repoThread.GetBySlug(thread.Slug)
-	if oldThread.Slug != "" {
-		*thread = *oldThread
-		err = pkg.ErrThreadAlreadyExists
-		return
+	currentThread, err := forumUsecase.repoThread.GetBySlug(thread.Slug)
+	if currentThread.Slug != "" {
+		*thread = *currentThread
+		return pkg.ErrThreadAlreadyExists
 	}
 
 	thread.Forum = forum.Slug
 	err = forumUsecase.repoThread.CreateThread(thread)
-	return
+	return err
 }
 
-func (forumUsecase *ForumUseCaseImpl) GetForumUsers(slug string, limit int, since string, desc bool) (users *models.Users, err error) {
-	_, err = forumUsecase.repoForum.GetInfoAboutForum(slug)
+func (forumUsecase *ForumUseCaseImpl) GetForumUsers(slug string, limit int, since string, desc bool) (*models.Users, error) {
+	_, err := forumUsecase.repoForum.GetInfoAboutForum(slug)
 	if err != nil {
-		err = pkg.ErrForumNotExist
-		return
+		return nil, pkg.ErrForumNotExist
 	}
 
 	usersSlice, err := forumUsecase.repoForum.GetForumUsers(slug, limit, since, desc)
 	if err != nil {
-		return
+		return nil, err
 	}
-	users = new(models.Users)
+	users := new(models.Users)
 	if len(*usersSlice) == 0 {
 		*users = []models.User{}
 	} else {
 		*users = *usersSlice
 	}
-
-	return
+	return users, err
 }
 
-func (forumUsecase *ForumUseCaseImpl) GetForumThreads(slug string, limit int, since string, desc bool) (threads *models.Threads, err error) {
+func (forumUsecase *ForumUseCaseImpl) GetForumThreads(slug string, limit int, since string, desc bool) (*models.Threads, error) {
 	forum, err := forumUsecase.repoForum.GetInfoAboutForum(slug)
 	if err != nil {
-		err = pkg.ErrForumNotExist
-		return
+		return nil, pkg.ErrForumNotExist
 	}
 
 	threadsSlice, err := forumUsecase.repoForum.GetForumThreads(forum.Slug, limit, since, desc)
 	if err != nil {
-		return
+		return nil, err
 	}
-	threads = new(models.Threads)
+	threads := new(models.Threads)
 	if len(*threadsSlice) == 0 {
 		*threads = []models.Thread{}
 	} else {
 		*threads = *threadsSlice
 	}
-
-	return
+	return threads, err
 }

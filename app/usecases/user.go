@@ -7,9 +7,9 @@ import (
 )
 
 type UserUsecase interface {
-	CreateNewUser(user *models.User) (users *models.Users, err error)
-	GetInfoAboutUser(nickname string) (user *models.User, err error)
-	UpdateUser(user *models.User) (err error)
+	CreateNewUser(user *models.User) (*models.Users, error)
+	GetInfoAboutUser(nickname string) (*models.User, error)
+	UpdateUser(user *models.User) error
 }
 
 type UserUsecaseImpl struct {
@@ -20,35 +20,32 @@ func MakeUserUseCase(user repositories.UserRepository) UserUsecase {
 	return &UserUsecaseImpl{repoUser: user}
 }
 
-func (userUsecase *UserUsecaseImpl) CreateNewUser(user *models.User) (users *models.Users, err error) {
-	usersSlice, err := userUsecase.repoUser.GetSimilarUsers(user)
+func (userUsecase *UserUsecaseImpl) CreateNewUser(user *models.User) (*models.Users, error) {
+	var users *models.Users
+	similarUsers, err := userUsecase.repoUser.GetSimilarUsers(user)
 	if err != nil {
-		err = pkg.ErrUserAlreadyExist
-		return
-	} else if len(*usersSlice) > 0 {
+		return users, pkg.ErrUserAlreadyExist
+	} else if len(*similarUsers) > 0 {
 		users = new(models.Users)
-		*users = *usersSlice
-		err = pkg.ErrUserAlreadyExist
-		return
+		*users = *similarUsers
+		return users, pkg.ErrUserAlreadyExist
 	}
-
 	err = userUsecase.repoUser.CreateUser(user)
-	return
+	return users, err
 }
 
-func (userUsecase *UserUsecaseImpl) GetInfoAboutUser(nickname string) (user *models.User, err error) {
-	user, err = userUsecase.repoUser.GetInfoAboutUser(nickname)
+func (userUsecase *UserUsecaseImpl) GetInfoAboutUser(nickname string) (*models.User, error) {
+	user, err := userUsecase.repoUser.GetInfoAboutUser(nickname)
 	if err != nil {
-		err = pkg.ErrUserNotFound
+		return nil, pkg.ErrUserNotFound
 	}
-	return
+	return user, nil
 }
 
-func (userUsecase *UserUsecaseImpl) UpdateUser(user *models.User) (err error) {
+func (userUsecase *UserUsecaseImpl) UpdateUser(user *models.User) error {
 	oldUser, err := userUsecase.repoUser.GetInfoAboutUser(user.Nickname)
 	if oldUser.Nickname == "" {
-		err = pkg.ErrUserNotFound
-		return
+		return pkg.ErrUserNotFound
 	}
 	if oldUser.Fullname != user.Fullname && user.Fullname == "" {
 		user.Fullname = oldUser.Fullname
@@ -61,7 +58,7 @@ func (userUsecase *UserUsecaseImpl) UpdateUser(user *models.User) (err error) {
 	}
 	err = userUsecase.repoUser.UpdateUser(user)
 	if err != nil {
-		err = pkg.ErrUserDataConflict
+		return pkg.ErrUserDataConflict
 	}
-	return
+	return nil
 }
