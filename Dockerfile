@@ -30,4 +30,5 @@ COPY --from=build /app/api/ .
 
 EXPOSE 5000
 USER root
+ENV PGPASSWORD password
 CMD service postgresql start && psql -h localhost -d forumdb -U somnevaetsya -p 5432 -a -q -f ./db/db.sql && ./api
