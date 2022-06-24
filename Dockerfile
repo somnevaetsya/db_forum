@@ -4,8 +4,7 @@ ADD . /app
 WORKDIR /app
 RUN go build  ./main.go
 
-FROM ubuntu:latest
-COPY . .
+FROM ubuntu:20.04
 
 RUN apt-get -y update && apt-get install -y tzdata
 ENV TZ=Russia/Moscow
