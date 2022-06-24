@@ -9,6 +9,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx"
+	"strings"
 )
 
 func main() {
@@ -21,18 +22,14 @@ func main() {
 	config.AllowCredentials = true
 
 	conn, err := pgx.ParseConnectionString(fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "127.0.0.1", "forum", "forum", "forum", "5432"))
-	if err != nil {
-		fmt.Println(err)
-	}
+
 	db, err := pgx.NewConnPool(pgx.ConnPoolConfig{
 		ConnConfig:     conn,
 		MaxConnections: 100,
 		AfterConnect:   nil,
 		AcquireTimeout: 0,
 	})
-	if err != nil {
-		fmt.Println(err)
-	}
+
 	defer db.Close()
 
 	// создание репозиториев
@@ -51,7 +48,7 @@ func main() {
 	threadHandler := handlers.MakeThreadHandler(usecases.MakeThreadUseCase(voteRepository, threadRepository, userRepository, postRepository))
 	userHandler := handlers.MakeUserHandler(usecases.MakeUserUseCase(userRepository))
 
-	forumRoutes := router.Group(pkg.RootRoute + pkg.ForumRoute)
+	forumRoutes := router.Group(strings.Join([]string{pkg.RootRoute, pkg.ForumRoute}, ""))
 	{
 		forumRoutes.POST("/create", forumHandler.CreateForum)
 		forumRoutes.GET("/:slug/details", forumHandler.GetForum)
@@ -59,17 +56,17 @@ func main() {
 		forumRoutes.GET("/:slug/users", forumHandler.GetForumUsers)
 		forumRoutes.GET("/:slug/:threads", forumHandler.GetForumThreads)
 	}
-	postRoutes := router.Group(pkg.RootRoute + pkg.PostRoute)
+	postRoutes := router.Group(strings.Join([]string{pkg.RootRoute, pkg.PostRoute}, ""))
 	{
 		postRoutes.GET("/:id/details", postHandler.GetPost)
 		postRoutes.POST("/:id/details", postHandler.UpdatePost)
 	}
-	serviceRoutes := router.Group(pkg.RootRoute + pkg.ServiceRoute)
+	serviceRoutes := router.Group(strings.Join([]string{pkg.RootRoute, pkg.ServiceRoute}, ""))
 	{
 		serviceRoutes.POST("/clear", serviceHandler.Clear)
 		serviceRoutes.GET("/status", serviceHandler.GetStatus)
 	}
-	threadRoutes := router.Group(pkg.RootRoute + pkg.ThreadRoute)
+	threadRoutes := router.Group(strings.Join([]string{pkg.RootRoute, pkg.ThreadRoute}, ""))
 	{
 		threadRoutes.POST("/:slug_or_id/create", threadHandler.CreatePosts)
 		threadRoutes.GET("/:slug_or_id/details", threadHandler.GetThread)
@@ -77,7 +74,7 @@ func main() {
 		threadRoutes.GET("/:slug_or_id/posts", threadHandler.GetThreadPosts)
 		threadRoutes.POST("/:slug_or_id/vote", threadHandler.Vote)
 	}
-	userRoutes := router.Group(pkg.RootRoute + pkg.UserRoute)
+	userRoutes := router.Group(strings.Join([]string{pkg.RootRoute, pkg.UserRoute}, ""))
 	{
 		userRoutes.POST("/:nickname/create", userHandler.CreateUser)
 		userRoutes.GET("/:nickname/profile", userHandler.GetUser)

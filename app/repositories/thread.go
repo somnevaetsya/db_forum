@@ -6,6 +6,8 @@ import (
 	"db_forum/pkg/handlerows"
 	"db_forum/pkg/queries"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx"
@@ -14,7 +16,7 @@ import (
 
 type ThreadRepository interface {
 	CreateThread(thread *models.Thread) (err error)
-	// GetThreadVotes GetThread(slugOrId interface{}) (*models.Thread, error)
+	GetThread(slugOrId interface{}) (*models.Thread, error)
 	GetThreadVotes(id int64) (votesAmount int32, err error)
 	UpdateThread(thread *models.Thread) error
 	CreateThreadPosts(thread *models.Thread, posts *models.Posts) error
@@ -55,20 +57,20 @@ func (threadRepository *ThreadRepositoryImpl) CreateThread(thread *models.Thread
 	return
 }
 
-//func (threadRepository *ThreadRepositoryImpl) GetThread(slugOrId interface{}) (*models.Thread, error) {
-//	thread := &models.Thread{}
-//	var err error
-//	switch slugOrId.(type) {
-//	case string:
-//		err = threadRepository.db.QueryRow(queries.ThreadGetSlug, slugOrId).
-//			Scan(&thread.ID, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
-//	case int64:
-//		id, _ := strconv.Atoi(slugOrId.(string))
-//		err = threadRepository.db.QueryRow(queries.ThreadGetId, int64(id)).
-//			Scan(&thread.ID, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
-//	}
-//	return thread, err
-//}
+func (threadRepository *ThreadRepositoryImpl) GetThread(slugOrId interface{}) (*models.Thread, error) {
+	thread := &models.Thread{}
+	var err error
+	switch slugOrId.(type) {
+	case string:
+		err = threadRepository.db.QueryRow(queries.ThreadGetSlug, slugOrId).
+			Scan(&thread.Id, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
+	case int64:
+		id, _ := strconv.Atoi(slugOrId.(string))
+		err = threadRepository.db.QueryRow(queries.ThreadGetId, int64(id)).
+			Scan(&thread.Id, &thread.Title, &thread.Author, &thread.Forum, &thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
+	}
+	return thread, err
+}
 
 func (threadRepository *ThreadRepositoryImpl) GetThreadVotes(id int64) (int32, error) {
 	var votes int32
@@ -82,9 +84,9 @@ func (threadRepository *ThreadRepositoryImpl) UpdateThread(thread *models.Thread
 }
 
 func (threadRepository *ThreadRepositoryImpl) createPartPosts(thread *models.Thread, posts *models.Posts, from, to int, created time.Time, createdFormatted string) (err error) {
-	query := "insert into posts (parent, author, message, forum, thread, created) values "
-	args := make([]interface{}, 0, 0)
 
+	args := make([]interface{}, 0, 0)
+	query := queries.PostPart
 	j := 0
 	for i := from; i < to; i++ {
 		(*posts)[i].Forum = thread.Forum
@@ -157,15 +159,15 @@ func (threadRepository *ThreadRepositoryImpl) GetThreadPostsTree(id int64, limit
 	var err error
 	if since == -1 {
 		if desc {
-			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTreeSinceDesc, id, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadTreeBase, queries.ThreadTreeSinceDesc}, ""), id, limit)
 		} else {
-			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTreeSince, id, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadTreeBase, queries.ThreadTreeSince}, ""), id, limit)
 		}
 	} else {
 		if desc {
-			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTreeDesc, id, since, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadTreeBase, queries.ThreadTreeDesc}, ""), id, since, limit)
 		} else {
-			rows, err = threadRepository.db.Query(queries.ThreadTreeBase+queries.ThreadTree, id, since, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadTreeBase, queries.ThreadTree}, ""), id, since, limit)
 		}
 	}
 
@@ -181,15 +183,15 @@ func (threadRepository *ThreadRepositoryImpl) GetThreadPostsParentTree(threadID 
 	var err error
 	if since == -1 {
 		if desc {
-			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTreeSinceDesc, threadID, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadParentBase, queries.ThreadParentTreeSinceDesc}, ""), threadID, limit)
 		} else {
-			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTreeSince, threadID, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadParentBase, queries.ThreadParentTreeSince}, ""), threadID, limit)
 		}
 	} else {
 		if desc {
-			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTreeDesc, threadID, since, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadParentBase, queries.ThreadParentTreeDesc}, ""), threadID, since, limit)
 		} else {
-			rows, err = threadRepository.db.Query(queries.ThreadParentBase+queries.ThreadParentTree, threadID, since, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadParentBase, queries.ThreadParentTree}, ""), threadID, since, limit)
 		}
 	}
 	if err != nil {
@@ -205,15 +207,15 @@ func (threadRepository *ThreadRepositoryImpl) GetThreadPostsFlat(id int64, limit
 	var err error
 	if since == -1 {
 		if desc {
-			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlatSinceDesc, id, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadFlatBase, queries.ThreadFlatSinceDesc}, ""), id, limit)
 		} else {
-			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlatSince, id, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadFlatBase, queries.ThreadFlatSince}, ""), id, limit)
 		}
 	} else {
 		if desc {
-			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlatDesc, id, since, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadFlatBase, queries.ThreadFlatDesc}, ""), id, since, limit)
 		} else {
-			rows, err = threadRepository.db.Query(queries.ThreadFlatBase+queries.ThreadFlat, id, since, limit)
+			rows, err = threadRepository.db.Query(strings.Join([]string{queries.ThreadFlatBase, queries.ThreadFlat}, ""), id, since, limit)
 		}
 	}
 	if err != nil {

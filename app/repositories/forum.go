@@ -4,8 +4,6 @@ import (
 	"db_forum/app/models"
 	"db_forum/pkg/handlerows"
 	"db_forum/pkg/queries"
-	"fmt"
-
 	"github.com/jackc/pgx"
 	_ "github.com/lib/pq"
 )
@@ -33,7 +31,6 @@ func (forumRepository *ForumRepositoryImpl) CreateForum(forum *models.Forum) (er
 func (forumRepository *ForumRepositoryImpl) GetInfoAboutForum(slug string) (forum *models.Forum, err error) {
 	forum = new(models.Forum)
 	err = forumRepository.db.QueryRow(queries.ForumGetBySlug, slug).Scan(&forum.Title, &forum.User, &forum.Slug, &forum.Posts, &forum.Threads)
-	fmt.Println("GET FORUM", forum, err)
 	return forum, err
 }
 

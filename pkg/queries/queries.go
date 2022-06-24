@@ -14,6 +14,7 @@ var (
 
 	PostGet    = "select id, coalesce(parent, 0), author, message, is_edited, forum, thread, created from posts where id = $1"
 	PostUpdate = "update posts set message = $1, is_edited = $2 where id = $3;"
+	PostPart   = "insert into posts (parent, author, message, forum, thread, created) values "
 
 	ServiceClear = "truncate table forums, posts, threads, user_forum, users, votes;"
 	ServiceGet   = "select (select count(*) from users) as users, (select count(*) from forums) as forums, (select count(*) from threads) as threads, (select count(*) from posts) as posts;"
