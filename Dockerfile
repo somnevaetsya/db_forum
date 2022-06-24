@@ -2,7 +2,7 @@ FROM golang:latest AS build
 
 ADD . /app
 WORKDIR /app
-RUN go build -o api ./cmd/
+RUN GOAMD64=v3 go build -o api ./cmd/
 
 FROM ubuntu:latest
 COPY . .
@@ -11,7 +11,7 @@ RUN apt-get -y update && apt-get install -y tzdata
 ENV TZ=Russia/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt-get -y update && apt-get install -y postgresql
+RUN apt-get -y update && apt-get install -y postgresql && rm -rf /var/lib/apt/lists/*
 
 USER postgres
 
