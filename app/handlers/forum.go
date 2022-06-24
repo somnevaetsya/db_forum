@@ -75,13 +75,14 @@ func (forumHandler *ForumHandler) CreateThread(c *gin.Context) {
 	slug := c.Param("slug")
 
 	var thread models.Thread
-	if err := easyjson.UnmarshalFromReader(c.Request.Body, &thread); err != nil {
+	err := easyjson.UnmarshalFromReader(c.Request.Body, &thread)
+	if err != nil {
 		c.Data(pkg.CreateErrorResponse(pkg.ErrBadRequest))
 		return
 	}
 	thread.Forum = slug
 
-	err := forumHandler.forumUsecase.CreateForumsThread(&thread)
+	err = forumHandler.forumUsecase.CreateForumsThread(&thread)
 	if err != nil && pkg.ConvertErrorToCode(err) != http.StatusConflict {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
@@ -96,13 +97,11 @@ func (forumHandler *ForumHandler) CreateThread(c *gin.Context) {
 		c.Data(pkg.ConvertErrorToCode(err), "application/json; charset=utf-8", threadJson)
 		return
 	}
-
 	threadJSON, err := thread.MarshalJSON()
 	if err != nil {
 		c.Data(pkg.CreateErrorResponse(err))
 		return
 	}
-
 	c.Data(http.StatusCreated, "application/json; charset=utf-8", threadJSON)
 }
 

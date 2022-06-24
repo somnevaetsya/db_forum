@@ -28,9 +28,7 @@ func (userHandler *UserHandler) CreateUser(c *gin.Context) {
 		c.Data(pkg.CreateErrorResponse(pkg.ErrBadRequest))
 		return
 	}
-
 	user.Nickname = nickname
-
 	users, err := userHandler.userUsecase.CreateNewUser(&user)
 	if err != nil && pkg.ConvertErrorToCode(err) != http.StatusConflict {
 		c.Data(pkg.CreateErrorResponse(err))
